@@ -3,10 +3,12 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $deviceGuard = Get-CimInstance -Namespace root\Microsoft\Windows\DeviceGuard -ClassName Win32_DeviceGuard
-$secureBoot = $false
+$secureBoot = $null
 try { $secureBoot = [bool](Confirm-SecureBootUEFI) } catch { }
 $bcd = (& bcdedit.exe /enum '{current}' 2>&1 | Out-String)
-$testMode = $bcd -match '(?im)^testsigning\s+(yes|on|true|是|開啟)\s*$'
+$startOptions = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control' -Name SystemStartOptions -ErrorAction SilentlyContinue).SystemStartOptions
+$testMode = ($startOptions -match 'TESTSIGNING') -or
+    ($bcd -match '(?im)^testsigning\s+(yes|on|true|是|開啟)\s*$')
 $device = Get-PnpDevice -PresentOnly | Where-Object InstanceId -Like 'USB\VID_0CA6&PID_0010\*' |
     Select-Object -First 1
 $signed = if ($device) {

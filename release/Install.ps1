@@ -18,6 +18,8 @@ function Assert-Administrator {
 }
 
 function Test-TestSigningEnabled {
+    $startOptions = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control' -Name SystemStartOptions -ErrorAction SilentlyContinue).SystemStartOptions
+    if ($startOptions -match 'TESTSIGNING') { return $true }
     $text = (& bcdedit.exe /enum '{current}' 2>&1 | Out-String)
     return $text -match '(?im)^testsigning\s+(yes|on|true|是|開啟)\s*$'
 }
