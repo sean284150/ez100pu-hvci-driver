@@ -32,7 +32,7 @@ try {
     $sbom = Join-Path $OutputDirectory 'source.spdx.json'
     if (Test-Path -LiteralPath $sbom) { $hashTargets += $sbom }
     $hashTargets | Get-FileHash -Algorithm SHA256 |
-        Select-Object Hash, Path |
+        Select-Object Hash,@{Name='File';Expression={Split-Path $_.Path -Leaf}} |
         Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $OutputDirectory 'SHA256SUMS.csv')
     Get-Item $zip
 } finally {
