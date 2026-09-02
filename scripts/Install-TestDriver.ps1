@@ -43,10 +43,27 @@ $catSignature = Get-AuthenticodeSignature $catPath
 if ($sysSignature.Status -ne 'Valid' -or $sysSignature.SignerCertificate.Thumbprint -ne $thumbprint) { throw 'SYS test signature is invalid or unexpected.' }
 if ($catSignature.Status -ne 'Valid' -or $catSignature.SignerCertificate.Thumbprint -ne $thumbprint) { throw 'Catalog test signature is invalid or unexpected.' }
 $baselineRoot = (Resolve-Path $BaselineDirectory).Path
-$baselineMismatch = @(Import-Csv (Join-Path $baselineRoot 'sha256.csv') | Where-Object {
-    (Get-FileHash (Join-Path $baselineRoot $_.File) -Algorithm SHA256).Hash -ne $_.Hash
-})
-if ($baselineMismatch.Count) { throw "Baseline hash verification failed for: $($baselineMismatch.File -join ', ')" }
+$baselinePrefix = $baselineRoot.TrimEnd('\') + '\'
+$baselineMismatch = @()
+foreach ($entry in @(Import-Csv (Join-Path $baselineRoot 'sha256.csv'))) {
+    $target = $null
+    $displayName = $entry.File
+    if ($entry.File) {
+        $target = [IO.Path]::GetFullPath((Join-Path $baselineRoot $entry.File))
+    } elseif ($entry.Path) {
+        $target = [IO.Path]::GetFullPath($entry.Path)
+        $displayName = if ($target.StartsWith($baselinePrefix, [StringComparison]::OrdinalIgnoreCase)) {
+            $target.Substring($baselinePrefix.Length)
+        } else { $target }
+    }
+    if (-not $target -or
+        -not $target.StartsWith($baselinePrefix, [StringComparison]::OrdinalIgnoreCase) -or
+        -not (Test-Path -LiteralPath $target -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne $entry.Hash) {
+        $baselineMismatch += $displayName
+    }
+}
+if ($baselineMismatch.Count) { throw "Baseline hash verification failed for: $($baselineMismatch -join ', ')" }
 $device = Get-PnpDevice -PresentOnly | Where-Object InstanceId -Like 'USB\VID_0CA6&PID_0010*' | Select-Object -First 1
 if (-not $device) { throw 'EZ100PU is not connected.' }
 $ids = (Get-PnpDeviceProperty -InstanceId $device.InstanceId -KeyName DEVPKEY_Device_HardwareIds).Data
