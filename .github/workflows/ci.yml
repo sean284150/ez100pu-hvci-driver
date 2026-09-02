@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Verify pinned toolchain
         shell: powershell
         run: .\scripts\Assert-Toolchain.ps1 | Format-List
@@ -36,7 +36,7 @@ jobs:
   codeql:
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: github/codeql-action/init@v3
         with:
           languages: cpp

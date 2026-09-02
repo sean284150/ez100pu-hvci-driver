@@ -29,8 +29,10 @@ Other EZ100PU revisions and ARM64 are deliberately not matched by the INF.
 
 ## Build
 
-Install Visual Studio 2022 Build Tools, Windows 11 SDK/WDK 10.0.26100.0, and
-KMDF 1.35. In an ordinary PowerShell session run:
+Install Visual Studio 2022 Build Tools and Windows 11 SDK 10.0.26100.0. The build
+downloads Microsoft's pinned `Microsoft.Windows.WDK.x64` 10.0.26100.6584 NuGet
+package, verifies its SHA-256, and uses its KMDF 1.35 content. In an ordinary
+PowerShell session run:
 
 ```powershell
 .\scripts\Assert-Toolchain.ps1

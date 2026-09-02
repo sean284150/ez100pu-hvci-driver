@@ -34,7 +34,7 @@
       <Optimization Condition="'$(Configuration)'=='Release'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)'!='Release'">Disabled</Optimization>
       <PreprocessorDefinitions>_AMD64_;AMD64;_WIN64;UNICODE;_UNICODE;KMDF_VERSION_MAJOR=1;KMDF_VERSION_MINOR=35;NTDDI_VERSION=0x0A00000E;WINVER=0x0A00;_WIN32_WINNT=0x0A00;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WindowsSdkDir)Include\wdf\kmdf\1.35;$(WindowsSdkDir)Include\$(WindowsTargetPlatformVersion)\km;$(WindowsSdkDir)Include\$(WindowsTargetPlatformVersion)\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WDKContentRoot)Include\wdf\kmdf\1.35;$(WDKContentRoot)Include\$(WindowsTargetPlatformVersion)\km;$(WindowsSdkDir)Include\$(WindowsTargetPlatformVersion)\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -45,7 +45,7 @@
       <AdditionalOptions>/kernel /Zl /Oi /Brepro %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(WindowsSdkDir)Lib\$(WindowsTargetPlatformVersion)\km\x64;$(WindowsSdkDir)Lib\wdf\kmdf\x64\1.35;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WDKContentRoot)Lib\$(WindowsTargetPlatformVersion)\km\x64;$(WDKContentRoot)Lib\wdf\kmdf\x64\1.35;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ntoskrnl.lib;hal.lib;wmilib.lib;wdmsec.lib;BufferOverflowK.lib;WdfLdr.lib;WdfDriverEntry.lib;smclib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>FxDriverEntry</EntryPointSymbol>
       <SubSystem>Native</SubSystem>
