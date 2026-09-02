@@ -13,7 +13,7 @@ $checks = [ordered]@{
     ExactRevisionOnly = $inf -match 'USB\\VID_0CA6&PID_0010&REV_0010' -and
         $inf -notmatch '(?m)^.*USB\\VID_0CA6&PID_0010\s*$'
     Windows26100X64 = $inf -match 'NTamd64\.10\.0\.\.\.26100'
-    PnpLockdown = $inf -match '(?m)^PnpLockdown=1$'
+    PnpLockdown = $inf -match '(?m)^PnpLockdown=1\r?$'
     SequentialSmclibQueue = $device -match 'WdfIoQueueDispatchSequential'
     ReleaseHardware = $device -match 'EvtDeviceReleaseHardware = EzKmEvtReleaseHardware'
     BoundedTimeExtensions = $source -match 'timeExtensions >= EZKM_MAX_TIME_EXTENSIONS' -and
