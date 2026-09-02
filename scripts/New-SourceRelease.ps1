@@ -28,7 +28,10 @@ try {
     if (Test-Path $zip) { Remove-Item -LiteralPath $zip -Force }
     git archive --format=zip --output=$zip $Tag
     if ($LASTEXITCODE) { throw 'git archive failed.' }
-    Get-FileHash -Algorithm SHA256 -LiteralPath $zip |
+    $hashTargets = @($zip)
+    $sbom = Join-Path $OutputDirectory 'source.spdx.json'
+    if (Test-Path -LiteralPath $sbom) { $hashTargets += $sbom }
+    $hashTargets | Get-FileHash -Algorithm SHA256 |
         Select-Object Hash, Path |
         Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $OutputDirectory 'SHA256SUMS.csv')
     Get-Item $zip
