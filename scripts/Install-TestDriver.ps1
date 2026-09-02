@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$PackageDirectory = (Join-Path $PSScriptRoot '..\package\Test'),
-    [string]$BaselineDirectory = (Join-Path $PSScriptRoot '..\baseline')
+    [string]$BaselineDirectory = (Join-Path $PSScriptRoot '..\baseline'),
+    [switch]$AllowHvciAfterBaseline
 )
 $ErrorActionPreference = 'Stop'
 $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -9,7 +10,11 @@ $principal = [Security.Principal.WindowsPrincipal]::new($currentIdentity)
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     $log = Join-Path $PSScriptRoot 'Install-TestDriver.elevated.log'
     Remove-Item -LiteralPath $log -Force -ErrorAction SilentlyContinue
-    $command = "& '$($PSCommandPath.Replace("'", "''"))' *> '$($log.Replace("'", "''"))'; exit `$LASTEXITCODE"
+    $escapedScript = $PSCommandPath.Replace("'", "''")
+    $escapedPackage = $PackageDirectory.Replace("'", "''")
+    $escapedBaseline = $BaselineDirectory.Replace("'", "''")
+    $allow = if ($AllowHvciAfterBaseline) { ' -AllowHvciAfterBaseline' } else { '' }
+    $command = "& '$escapedScript' -PackageDirectory '$escapedPackage' -BaselineDirectory '$escapedBaseline'$allow *> '$($log.Replace("'", "''"))'; exit `$LASTEXITCODE"
     $process = Start-Process powershell.exe -ArgumentList @(
         '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $command
     ) -Verb RunAs -WindowStyle Hidden -Wait -PassThru
@@ -25,7 +30,9 @@ try {
     if ($_.Exception.Message -notmatch 'not supported') { throw }
 }
 $guard = Get-CimInstance Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard
-if ($guard.SecurityServicesRunning -contains 2) { throw 'Memory Integrity is running. Perform the first functional test with it off.' }
+if (($guard.SecurityServicesRunning -contains 2) -and -not $AllowHvciAfterBaseline) {
+    throw 'Memory Integrity is running. Use -AllowHvciAfterBaseline only after an HVCI-off baseline pass.'
+}
 $thumbprint = (Get-Content (Join-Path $PSScriptRoot 'test-cert-thumbprint.txt') -Raw).Trim()
 $sysPath = Join-Path $PackageDirectory 'ez100pu_kmdf.sys'
 $catPath = Join-Path $PackageDirectory 'ez100pu_kmdf.cat'
@@ -48,7 +55,7 @@ if ($pnpExitCode -ne 0 -and $pnpExitCode -ne 3010) { throw "Driver installation 
 Start-Sleep -Seconds 2
 $active = Get-CimInstance Win32_PnPSignedDriver | Where-Object DeviceID -eq $device.InstanceId
 $active | Format-List * | Out-File (Join-Path $BaselineDirectory 'prototype-active-driver.txt')
-if ($active.DriverProviderName -ne 'EZ100PU Clean-room Project') { throw 'Prototype was staged but did not become the active driver; no destructive rank override was attempted.' }
+if ($active.DriverProviderName -ne 'EZ100PU Compatibility Project') { throw 'Prototype was staged but did not become the active driver; no destructive rank override was attempted.' }
 Set-Content (Join-Path $BaselineDirectory 'prototype-published-inf.txt') $active.InfName
 if ($pnpExitCode -eq 3010) {
     Write-Host "Prototype $($active.DriverVersion) is staged as $($active.InfName). Reboot is required before device validation."
@@ -60,4 +67,8 @@ if ($device.Status -ne 'OK') {
     $problemStatus = (Get-PnpDeviceProperty -InstanceId $device.InstanceId -KeyName DEVPKEY_Device_ProblemStatus).Data
     throw "Prototype is selected but the device did not start (PnP code $problemCode, NTSTATUS 0x$('{0:X8}' -f $problemStatus))."
 }
-Write-Host 'Prototype is active. Test enumeration and basic PC/SC with HVCI off; do not enable HVCI yet.'
+if ($guard.SecurityServicesRunning -contains 2) {
+    Write-Host 'Prototype is active with Memory Integrity running. Perform the no-card and live-card regression suites.'
+} else {
+    Write-Host 'Prototype is active. Test enumeration and basic PC/SC with HVCI off before the HVCI pass.'
+}
