@@ -77,3 +77,14 @@ smart-card application.
 
 No 0.3.0 live-card, Driver Verifier, HLK, second-machine, or Microsoft-signing
 claim is made yet.
+
+### 0.3.0 no-card live check
+
+- Installed locally as a test-signed package while Memory Integrity remained
+  running in the existing development configuration.
+- PnP status was `OK`; PC/SC reported `Present=False`, `Empty=True`,
+  `Unavailable=False`, and `Mute=False`.
+- No matching Code Integrity block event appeared in the ten-minute installation
+  window.
+- The card was intentionally absent, so this check makes no ATR, PPS, T=0/T=1,
+  APDU, or application-login claim for 0.3.0.
