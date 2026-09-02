@@ -1,0 +1,28 @@
+name: source-release
+
+on:
+  push:
+    tags: [ 'v0.[3-9].*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  source-only:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - shell: powershell
+        run: |
+          .\scripts\New-SourceSbom.ps1
+          .\scripts\New-SourceRelease.ps1 -Tag '${{ github.ref_name }}'
+      - uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            artifacts/*-source.zip
+            artifacts/source.spdx.json
+            artifacts/SHA256SUMS.csv

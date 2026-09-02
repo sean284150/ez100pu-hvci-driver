@@ -1,0 +1,30 @@
+# Build products and local packages
+/build/
+/obj/
+/package/
+/artifacts/
+*.sys
+*.cat
+*.pdb
+*.obj
+*.hlkx
+
+# Machine-specific captures and credentials
+/baseline/
+*.cer
+*.pfx
+*.pvk
+*.snk
+*thumbprint*
+*.elevated.log
+*.etl
+*.dmp
+*.log
+
+# Local tooling
+.vs/
+.vscode/
+*.user
+*.suo
+Desktop.ini
+Thumbs.db

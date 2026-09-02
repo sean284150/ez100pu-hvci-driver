@@ -1,0 +1,46 @@
+name: source-and-driver-ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  build:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify pinned toolchain
+        shell: powershell
+        run: .\scripts\Assert-Toolchain.ps1 | Format-List
+      - name: Static contracts
+        shell: powershell
+        run: .\tests\Static-Contract.Tests.ps1 | Format-Table -AutoSize
+      - name: Protocol parser tests
+        shell: powershell
+        run: .\tests\Run-ProtocolTests.ps1
+      - name: Release build and INF/catalog validation
+        shell: powershell
+        run: .\scripts\Build-Package.ps1 -Configuration Release
+      - name: Confirm no binary is tracked
+        shell: powershell
+        run: |
+          $bad = @(git ls-files | Where-Object { $_ -match '(?i)\.(sys|cat|pdb|pfx|pvk|cer|etl|dmp)$' })
+          if ($bad.Count) { throw "Forbidden tracked binary: $($bad -join ', ')" }
+
+  codeql:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: cpp
+          build-mode: manual
+      - shell: powershell
+        run: .\scripts\Build-Package.ps1 -Configuration Release
+      - uses: github/codeql-action/analyze@v3

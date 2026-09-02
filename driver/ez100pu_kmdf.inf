@@ -1,0 +1,52 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=SmartCardReader
+ClassGuid={50DD5230-BA8A-11D1-BF5D-0000F805F530}
+Provider=%ProviderName%
+CatalogFile=ez100pu_kmdf.cat
+DriverVer=09/02/2026,0.3.0.0
+PnpLockdown=1
+
+[Manufacturer]
+%ManufacturerName%=Models,NTamd64.10.0...26100
+
+[Models.NTamd64.10.0...26100]
+%DeviceName%=EzInstall,USB\VID_0CA6&PID_0010&REV_0010
+
+[SourceDisksFiles]
+ez100pu_kmdf.sys=1
+
+[SourceDisksNames]
+1=%DiskName%,,,
+
+[DestinationDirs]
+EzCopy=13
+
+[EzCopy]
+ez100pu_kmdf.sys
+
+[EzInstall.NT]
+CopyFiles=EzCopy
+
+[EzInstall.NT.Services]
+AddService=ez100pu_kmdf,0x00000002,EzService
+
+[EzService]
+DisplayName=%ServiceName%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%13%\ez100pu_kmdf.sys
+
+[EzInstall.NT.Wdf]
+KmdfService=ez100pu_kmdf,EzKmdf
+
+[EzKmdf]
+KmdfLibraryVersion=1.35
+
+[Strings]
+ProviderName="EZ100PU Compatibility Project"
+ManufacturerName="Independent compatibility implementation"
+DeviceName="EZ100PU Compatible Smart Card Reader"
+ServiceName="EZ100PU compatible smart card driver"
+DiskName="EZ100PU compatible driver installation media"
