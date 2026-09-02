@@ -3,6 +3,11 @@ param([string]$OutputPath = (Join-Path $PSScriptRoot '..\artifacts\source.spdx.j
 
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$inf = Get-Content -Raw -LiteralPath (Join-Path $root 'driver\ez100pu_kmdf.inf')
+if ($inf -notmatch '(?m)^DriverVer=[^,]+,(\d+\.\d+\.\d+)\.\d+\r?$') {
+    throw 'Could not derive the source version from DriverVer in the INF.'
+}
+$sourceVersion = $Matches[1]
 Push-Location $root
 try {
     $commit = (git rev-parse HEAD).Trim()
@@ -32,7 +37,7 @@ try {
             creators = @('Tool: scripts/New-SourceSbom.ps1')
         }
         packages = @(@{
-            name='ez100pu-hvci-driver'; SPDXID='SPDXRef-Package'; versionInfo='0.3.0';
+            name='ez100pu-hvci-driver'; SPDXID='SPDXRef-Package'; versionInfo=$sourceVersion;
             downloadLocation='NOASSERTION'; filesAnalyzed=$true; licenseConcluded='MIT';
             licenseDeclared='MIT'; copyrightText='Copyright (c) 2026'
         })
