@@ -14,9 +14,11 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
     $escapedPackage = $PackageDirectory.Replace("'", "''")
     $escapedBaseline = $BaselineDirectory.Replace("'", "''")
     $allow = if ($AllowHvciAfterBaseline) { ' -AllowHvciAfterBaseline' } else { '' }
-    $command = "& '$escapedScript' -PackageDirectory '$escapedPackage' -BaselineDirectory '$escapedBaseline'$allow *> '$($log.Replace("'", "''"))'; exit `$LASTEXITCODE"
+    $escapedLog = $log.Replace("'", "''")
+    $command = "`$ErrorActionPreference='Stop'; try { & '$escapedScript' -PackageDirectory '$escapedPackage' -BaselineDirectory '$escapedBaseline'$allow *>&1 | Out-File -FilePath '$escapedLog'; exit 0 } catch { `$_ | Out-String | Out-File -FilePath '$escapedLog'; exit 1 }"
+    $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     $process = Start-Process powershell.exe -ArgumentList @(
-        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $command
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $encodedCommand
     ) -Verb RunAs -WindowStyle Hidden -Wait -PassThru
     if (Test-Path $log) { Get-Content $log }
     exit $process.ExitCode
