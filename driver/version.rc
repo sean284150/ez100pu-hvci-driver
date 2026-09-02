@@ -1,8 +1,8 @@
 #include <windows.h>
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,0,0
- PRODUCTVERSION 0,3,0,0
+ FILEVERSION 0,3,1,0
+ PRODUCTVERSION 0,3,1,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
  FILEFLAGS VS_FF_PRERELEASE
  FILEOS VOS_NT_WINDOWS32
@@ -15,11 +15,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "EZ100PU Compatibility Project\0"
             VALUE "FileDescription", "Independent EZ100PU compatible smart card reader driver\0"
-            VALUE "FileVersion", "0.3.0.0\0"
+            VALUE "FileVersion", "0.3.1.0\0"
             VALUE "InternalName", "ez100pu_kmdf.sys\0"
             VALUE "OriginalFilename", "ez100pu_kmdf.sys\0"
             VALUE "ProductName", "EZ100PU Compatible Driver\0"
-            VALUE "ProductVersion", "0.3.0.0\0"
+            VALUE "ProductVersion", "0.3.1.0\0"
             VALUE "LegalCopyright", "Copyright (c) 2026\0"
         END
     END

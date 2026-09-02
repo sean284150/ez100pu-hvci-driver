@@ -124,7 +124,7 @@ EzKmRegisterSmclib(_In_ PEZKM_DEVICE_CONTEXT Context)
     extension->VendorAttr.IfdType.Length = sizeof(EzKmIfdType);
     extension->VendorAttr.IfdVersion.VersionMajor = 0;
     extension->VendorAttr.IfdVersion.VersionMinor = 3;
-    extension->VendorAttr.IfdVersion.BuildNumber = 0;
+    extension->VendorAttr.IfdVersion.BuildNumber = 1;
 
     extension->ReaderCapabilities.SupportedProtocols = SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1;
     extension->ReaderCapabilities.ReaderType = SCARD_READER_TYPE_USB;

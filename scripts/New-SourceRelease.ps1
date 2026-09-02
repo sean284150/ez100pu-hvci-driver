@@ -31,7 +31,8 @@ try {
     $hashTargets = @($zip)
     $sbom = Join-Path $OutputDirectory 'source.spdx.json'
     if (Test-Path -LiteralPath $sbom) { $hashTargets += $sbom }
-    $hashTargets | Get-FileHash -Algorithm SHA256 |
+    $hashes = @($hashTargets | ForEach-Object { Get-FileHash -Algorithm SHA256 -LiteralPath $_ })
+    $hashes |
         Select-Object Hash,@{Name='File';Expression={Split-Path $_.Path -Leaf}} |
         Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $OutputDirectory 'SHA256SUMS.csv')
     Get-Item $zip

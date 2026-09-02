@@ -4,7 +4,7 @@ Class=SmartCardReader
 ClassGuid={50DD5230-BA8A-11D1-BF5D-0000F805F530}
 Provider=%ProviderName%
 CatalogFile=ez100pu_kmdf.cat
-DriverVer=09/02/2026,0.3.0.0
+DriverVer=09/02/2026,0.3.1.0
 PnpLockdown=1
 
 [Manufacturer]
